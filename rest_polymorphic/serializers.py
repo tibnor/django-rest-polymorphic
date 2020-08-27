@@ -98,11 +98,13 @@ class PolymorphicSerializer(serializers.Serializer):
         validated_data[self.resource_type_field_name] = resource_type
         return validated_data
 
-
     def get_object_openapi_schema(self, autoschema):
         schemas = []
         for serializer in self.model_serializer_mapping.values():
-            schemas.append(autoschema.map_serializer(serializer))
+            type_def = autoschema.map_serializer(serializer)
+            type_def['properties'][self.resource_type_field_name] = {'type': 'string'}
+            type_def['required'].append(self.resource_type_field_name)
+            schemas.append(type_def)
 
         return {
             'oneOf': schemas,
