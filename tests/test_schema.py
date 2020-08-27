@@ -48,9 +48,11 @@ class TestPolymorphicSerializerAutoSchema:
 
         components = inspector.get_components(path, method)
         comp_bp = components['BlogPolymorphic']
+        discriminator = BlogPolymorphicSerializer.resource_type_field_name
         assert 'oneOf' in comp_bp
         assert len(comp_bp['oneOf']) == len(BlogPolymorphicSerializer.model_serializer_mapping)
         for comp in comp_bp['oneOf']:
-            assert comp_bp['discriminator'] in comp['properties']
-            assert comp_bp['discriminator'] in comp['required']
-        assert comp_bp['discriminator'] == BlogPolymorphicSerializer.resource_type_field_name
+            assert discriminator in comp['properties']
+            assert discriminator in comp['required']
+        discriminator_field = comp_bp['discriminator']
+        assert discriminator_field['propertyName'] == discriminator

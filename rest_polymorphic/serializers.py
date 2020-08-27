@@ -108,7 +108,7 @@ class PolymorphicSerializer(serializers.Serializer):
 
         return {
             'oneOf': schemas,
-            'discriminator': self.resource_type_field_name
+            'discriminator': {'propertyName': self.resource_type_field_name}
         }
 
     # --------------
