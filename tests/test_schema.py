@@ -51,7 +51,9 @@ class TestPolymorphicSerializerAutoSchema:
         discriminator = BlogPolymorphicSerializer.resource_type_field_name
         assert 'oneOf' in comp_bp
         assert len(comp_bp['oneOf']) == len(BlogPolymorphicSerializer.model_serializer_mapping)
-        for comp in comp_bp['oneOf']:
+        for comp_ref in comp_bp['oneOf']:
+            comp_name = comp_ref['$ref'].replace('#/components/schemas/', '')
+            comp = components[comp_name]
             assert discriminator in comp['properties']
             assert discriminator in comp['required']
         discriminator_field = comp_bp['discriminator']

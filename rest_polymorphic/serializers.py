@@ -100,16 +100,21 @@ class PolymorphicSerializer(serializers.Serializer):
 
     def get_object_openapi_schema(self, autoschema):
         schemas = []
+        components = {}
         for serializer in self.model_serializer_mapping.values():
-            type_def = autoschema.map_serializer(serializer)
-            type_def['properties'][self.resource_type_field_name] = {'type': 'string'}
-            type_def['required'].append(self.resource_type_field_name)
-            schemas.append(type_def)
+            ref, type_def = autoschema.map_serializer(serializer)
+            name = ref['$ref'].replace('#/components/schemas/','')
+            type_def[name]['properties'][self.resource_type_field_name] = {'type': 'string'}
+            type_def[name]['required'].append(self.resource_type_field_name)
+            schemas.append(ref)
+            components.update(type_def)
 
-        return {
+        component_name = autoschema.get_component_name(self)
+        components[component_name] = {
             'oneOf': schemas,
             'discriminator': {'propertyName': self.resource_type_field_name}
         }
+        return {'$ref': '#/components/schemas/%s' % component_name}, components
 
     # --------------
     # Implementation
