@@ -99,6 +99,16 @@ class PolymorphicSerializer(serializers.Serializer):
         return validated_data
 
 
+    def get_object_openapi_schema(self, autoschema):
+        schemas = []
+        for serializer in self.model_serializer_mapping.values():
+            schemas.append(autoschema.map_serializer(serializer))
+
+        return {
+            'oneOf': schemas,
+            'discriminator': self.resource_type_field_name
+        }
+
     # --------------
     # Implementation
 

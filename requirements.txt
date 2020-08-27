@@ -1,3 +1,4 @@
+-e git+https://github.com/tibnor/django-rest-framework.git@4ebc780#egg=djangorestframework
 -e .
 -r requirements/codestyle.txt
 -r requirements/packaging.txt
