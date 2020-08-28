@@ -90,7 +90,7 @@ class PolymorphicSerializer(serializers.Serializer):
             child_valid = serializer.is_valid(*args, **kwargs)
             self._errors.update(serializer.errors)
         return valid and child_valid
-    
+
     def run_validation(self, data=empty):
         resource_type = self._get_resource_type_from_mapping(data)
         serializer = self._get_serializer_from_resource_type(resource_type)
@@ -101,18 +101,25 @@ class PolymorphicSerializer(serializers.Serializer):
     def get_object_openapi_schema(self, autoschema):
         schemas = []
         components = {}
-        for serializer in self.model_serializer_mapping.values():
+        discriminator_mapping = {}
+        for model, serializer in self.model_serializer_mapping.items():
             ref, type_def = autoschema.map_serializer(serializer)
-            name = ref['$ref'].replace('#/components/schemas/','')
+            name = ref['$ref'].replace('#/components/schemas/', '')
             type_def[name]['properties'][self.resource_type_field_name] = {'type': 'string'}
             type_def[name]['required'].append(self.resource_type_field_name)
             schemas.append(ref)
             components.update(type_def)
 
+            type_name = self.to_resource_type(model)
+            discriminator_mapping[type_name] = ref['$ref']
+
         component_name = autoschema.get_component_name(self)
         components[component_name] = {
             'oneOf': schemas,
-            'discriminator': {'propertyName': self.resource_type_field_name}
+            'discriminator': {
+                'propertyName': self.resource_type_field_name,
+                'mapping': discriminator_mapping
+            }
         }
         return {'$ref': '#/components/schemas/%s' % component_name}, components
 

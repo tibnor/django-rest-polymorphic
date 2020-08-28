@@ -47,6 +47,8 @@ class TestPolymorphicSerializerAutoSchema:
         assert responses['201']['content']['application/json']['schema']['$ref'] == '#/components/schemas/BlogPolymorphic'
 
         components = inspector.get_components(path, method)
+        print(components)
+
         comp_bp = components['BlogPolymorphic']
         discriminator = BlogPolymorphicSerializer.resource_type_field_name
         assert 'oneOf' in comp_bp
@@ -58,3 +60,4 @@ class TestPolymorphicSerializerAutoSchema:
             assert discriminator in comp['required']
         discriminator_field = comp_bp['discriminator']
         assert discriminator_field['propertyName'] == discriminator
+        assert 'mapping' in discriminator_field
