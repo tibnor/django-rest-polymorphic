@@ -106,6 +106,8 @@ class PolymorphicSerializer(serializers.Serializer):
             ref, type_def = autoschema.map_serializer(serializer)
             name = ref['$ref'].replace('#/components/schemas/', '')
             type_def[name]['properties'][self.resource_type_field_name] = {'type': 'string'}
+            if 'required' not in type_def[name]:
+                type_def[name]['required'] = []
             type_def[name]['required'].append(self.resource_type_field_name)
             schemas.append(ref)
             components.update(type_def)
